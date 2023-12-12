@@ -3,6 +3,7 @@ from functools import wraps
 import ldap
 from ldap import filter as ldap_filter
 from flask import abort, current_app, g, make_response, redirect, url_for, request
+from werkzeug.datastructures import WWWAuthenticate
 
 __all__ = ["LDAP"]
 
@@ -421,7 +422,9 @@ class LDAP(object):
 
         def make_auth_required_response():
             response = make_response("Unauthorized", 401)
-            response.www_authenticate.set_basic(current_app.config["LDAP_REALM_NAME"])
+            response.www_authenticate = WWWAuthenticate(
+                "basic", {"realm": current_app.config['LDAP_REALM_NAME']}
+            )
             return response
 
         @wraps(func)

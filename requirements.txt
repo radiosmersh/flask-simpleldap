@@ -1,2 +1,2 @@
-Flask==2.3.2
+Flask==3.0.0
 mock==4.0.3  # for ci
