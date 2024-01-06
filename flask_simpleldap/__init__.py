@@ -1,3 +1,4 @@
+import os
 import re
 from functools import wraps
 import ldap
@@ -96,9 +97,10 @@ class LDAP(object):
                     current_app.config["LDAP_PORT"],
                 )
             )
-            conn.set_option(
-                ldap.OPT_NETWORK_TIMEOUT, current_app.config["LDAP_TIMEOUT"]
-            )
+            if os.name != "nt":
+                conn.set_option(
+                    ldap.OPT_NETWORK_TIMEOUT, current_app.config["LDAP_TIMEOUT"]
+                )
             conn = self._set_custom_options(conn)
             conn.protocol_version = ldap.VERSION3
             if current_app.config["LDAP_USE_TLS"]:
@@ -339,10 +341,10 @@ class LDAP(object):
     @staticmethod
     def error(e):
         e = e[0]
-        if "desc" in e:
-            return e["desc"]
-        else:
-            return e
+        if isinstance(e, dict):
+            if "desc" in e:
+                return e["desc"]
+        return e
 
     @staticmethod
     def login_required(func):
